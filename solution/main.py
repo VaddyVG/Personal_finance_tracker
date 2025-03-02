@@ -14,6 +14,33 @@ def add_transaction_ui(tracker):
     print("Транзакция добавлена!")
 
 
+def edit_transaction_ui(tracker):
+    """Интерфейс для редактирования транзакции."""
+    index = int(input("Введите индекс транзакции для редактирования: "))
+    if 0 <= index < len(tracker.transactions):
+        amount = float(input("Введите новую сумму: "))
+        category = input("Введите новую категорию: ")
+        date = input("Введите новую дату (ГГГГ-ММ-ДД): ")
+        transaction_type = input("Введите новый тип (income/expense): ")
+        new_transaction = Transaction(amount, category, date, transaction_type)
+        filename = input("Введите имя файла для изменения (например, data.csv): ")
+        tracker.edit_transaction(index, new_transaction, filename)
+        print("Транзакция успешно отредактирована!")
+    else:
+        print("Неверный индекс транзакции.")
+
+
+def delete_transaction_ui(tracker):
+    """Интерфейс для удаления транзакции."""
+    index = int(input("Введите индекс транзакции для удаления: "))
+    if 0 <= index < len(tracker.transactions):
+        filename = input("Введите имя файла для удаления (например, data.csv): ")
+        tracker.delete_transaction(index, filename)
+        print("Транзакция успешно удалена!")
+    else:
+        print("Неверный индекс транзакции.")
+
+
 def show_balance_ui(tracker):
     """Функция для показа текущего баланса."""
     balance = tracker.get_balance()
@@ -84,7 +111,9 @@ def main():
         print("3. Показать отчет за месяц")
         print("4. Визуализировать расходы")
         print("5. Экспорт в CSV")
-        print("6. Выйти")
+        print("6. Редактировать транзакцию")
+        print("7. Удалить транзакцию")
+        print("8. Выйти")
         choice = input("Выберите действие: ")
     
         if choice == "1":
@@ -98,7 +127,11 @@ def main():
         elif choice == "5":
             export_to_csv_ui(tracker)
         elif choice == "6":
-            print("Выход из программы")
+            edit_transaction_ui(tracker)
+        elif choice == "7":
+            delete_transaction_ui(tracker)
+        elif choice == "8":
+            print("Выход из программы.")
             break
         else:
             print("Неверный выбор. Попробуйте снова.")

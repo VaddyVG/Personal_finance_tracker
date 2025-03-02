@@ -17,6 +17,25 @@ class FinanceTracker:
     def add_transaction(self, transaction):
         """Добавление новой транзакции в список."""
         self.transactions.append(transaction)
+
+    def edit_transaction(self, index, new_transaction, filename="data.csv"):
+        """
+        Редактирует транзакцию по индексу.
+        :param index: Индекс транзакции.
+        :param new_transaction: Новая транзакция.
+        """
+        if 0 <= index < len(self.transactions):
+            self.transactions[index] = new_transaction
+            self.export_to_csv(filename)
+    
+    def delete_transaction(self, index, filename="data.csv"):
+        """
+        Удаляет транзакцию по индексу
+        :param index: Индекс транзакции
+        """
+        if 0 <= index < len(self.transactions):
+            self.transactions.pop(index)
+            self.export_to_csv(filename)
     
     def get_balance(self):
         """Расчет текущего баланса (доходы минус расходы)."""
