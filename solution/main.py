@@ -1,33 +1,90 @@
 from solution.finance_tracker import FinanceTracker, ensure_files_directory_exists
 from solution.transaction import Transaction
+from prompt_toolkit import prompt
+from solution.validation import AmountValidator, DateValidator, type_completer
 import os
 
 
 def add_transaction_ui(tracker):
     """Функция для добавления транзакции (взаимодействие с пользователем)."""
-    amount = float(input("Введите сумму: "))
-    category = input("Введите категорию: ").strip()
-    date = input("Введите дату (ГГГГ-ММ-ДД): ")
-    transaction_type = input("Введите тип (income/expense): ").strip().lower()
-    transaction = Transaction(amount, category, date, transaction_type)
-    tracker.add_transaction(transaction)
-    print("Транзакция добавлена!")
+    try:
+        amount = float(prompt(
+            "Введите сумму: ",
+            validator=AmountValidator()
+        ))
+        category = prompt("Введите категорию: ").strip()
+        if not category:
+            print("Ошибка: Категория не может быть пустой.")
+            return
+
+        date = prompt(
+            "Введите дату (ГГГГ-ММ-ДД): ",
+            validator=DateValidator()
+        )
+
+        transaction_type = prompt(
+            "Введите тип (income/expense): ",
+            completer=type_completer,
+            complete_while_typing=True
+        ).lower()
+
+        if transaction_type not in ("income", "expense"):
+            print("Ошибка: Тип должен быть 'income' или 'expense'.")
+            return
+
+        transaction = Transaction(amount, category, date, transaction_type)
+        tracker.add_transaction(transaction)
+        print("Транзакция добавлена!")
+    except KeyboardInterrupt:
+        print("\nОтменено пользователем.")
+    except Exception as e:
+        print(f"Неожиданная ошибка: {e}")
 
 
 def edit_transaction_ui(tracker):
     """Интерфейс для редактирования транзакции."""
-    index = int(input("Введите индекс транзакции для редактирования: "))
-    if 0 <= index < len(tracker.transactions):
-        amount = float(input("Введите новую сумму: "))
-        category = input("Введите новую категорию: ")
-        date = input("Введите новую дату (ГГГГ-ММ-ДД): ")
-        transaction_type = input("Введите новый тип (income/expense): ")
+    try:
+        index = int(prompt("Введите индекс транзакции для редактирования: "))
+        if not (0 <= index < len(tracker.transactions)):
+            print("Неверный индекс транзакции.")
+            return
+        amount = float(prompt(
+            "Введите новую сумму: ",
+            validator=AmountValidator()
+        ))
+
+        category = prompt("Введите новую категорию: ").strip()
+        if not category:
+            print("Ошибка: категория не может быть пустой.")
+            return
+        
+        date = prompt(
+            "Введите новую дату (ГГГГ-ММ-ДД): ",
+            validator=DateValidator()
+        )
+
+        transaction_type = prompt(
+            "Введите новый тип (income/expense): ",
+            completer=type_completer,
+            complete_while_typing=True
+        ).lower()
+
+        if transaction_type not in ("income", "expense"):
+            print("Ошибка: Тип должен быть 'income' или 'expense'.")
+            return
+
         new_transaction = Transaction(amount, category, date, transaction_type)
-        filename = input("Введите имя файла для изменения (например, data.csv): ")
+        filename = prompt("Введите имя файла для изменения (например, data.csv): ").strip()
+        if not filename:
+            print("Ошибка: Имя файла не может быть пустым.")
+            return
+        
         tracker.edit_transaction(index, new_transaction, filename)
         print("Транзакция успешно отредактирована!")
-    else:
-        print("Неверный индекс транзакции.")
+    except KeyboardInterrupt:
+        print("\nОтменено пользователем.")
+    except Exception as e:
+        print(f"Неожиданная ошибка: {e}")
 
 
 def delete_transaction_ui(tracker):
